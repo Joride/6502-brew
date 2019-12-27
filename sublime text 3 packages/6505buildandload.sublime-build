@@ -1,0 +1,5 @@
+{
+	"cmd": "mkdir $project_path/build > /dev/null 2>&1 || find $project_path/src/*.asm -type f -exec ca65 {} -o `printf \"%s.o\" {}` \\; && rm $project_path/build/$project_base_name.nes > /dev/null 2>&1 || sleep 0 && ld65 $project_path/src/*.o -C nes.cfg -o $project_path/build/$project_base_name.nes && rm $project_path/src/*.o && open $project_path/build/$project_base_name.nes /Applications/OpenEmu.app/ ",
+	"working_dir" : "$project_path/",
+	"shell" : "true"
+}

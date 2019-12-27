@@ -1,0 +1,30 @@
+Following this guide: https://book.famicom.party/chapters/08-refactoring.html
+
+requirements:
+- install ca65 and ld65 to compile and link 6502.asm files (use Homebrew and then 'brew install cc65')
+- Sublime Text 3 with packages:
+	* 6502.sublime-syntax (to have 6502 ASM syntax highlighting). Got it from here: https://gist.github.com/thinkyhead/53c41eb51c0b651a9f2f0cfc9681ddf1
+	* 6505buildandload.sublime-build (made by me to be able to run a number of commands to conver the assembly-files into a .nes file)
+	> put both those things here: /Users/<Username>/Library/Application Support/Sublime Text 3/Packages/User/
+- an NES emulator. Here using OpenEmu as it was easy to get started with.
+
+Explanation of the build command (as bash is not my expertise nor something I enjoy writing):
+1. mkdir $project_path/build > /dev/null 2>&1 || 
+2. find $project_path/src/*.asm -type f -exec ca65 {} -o `printf \"%s.o\" {}` \\; && 
+3. rm $project_path/build/$project_base_name.nes > /dev/null 2>&1 || 
+4. sleep 0 && 
+5. ld65 $project_path/src/*.o -C nes.cfg -o $project_path/build/$project_base_name.nes &&
+6. rm $project_path/src/*.o &&
+7. open $project_path/build/$project_base_name.nes /Applications/OpenEmu.app/ "
+
+> $project_path and $project_base_name are environment vars defined by Sublime Text 3
+1. create a build dir in the directory where Sublime Text 3's project file is located. Suppress output, execute the next command regardless. ('||')
+2. find all .asm files in the directory src/ relative to Sublime Text 3's project file directory. For each file (indicated by '{}'), execute the command 'ca65' with that file as input, '-o' to specify the output, which is the same filepath + '.o'. In case this succeeds, execute the next command ('&&')
+3. delete a file that is going to be created in step 5. Suppress output, in case of errors (because the file does not exist yet for instance), continue regardless ('||')
+4. leaving this out will cause the next step to complain about the file not existing (maybe some race condition or whatever)
+5. link together all .o files created in step 2. and create a .nes file in the /build dir (relative to project again). If this succeeds, move on to the next step.
+6. delete all .o files in the src/ directory.
+7. open the create .nes file in an emulator to see the result
+
+
+Dec 27 2019, Joride
